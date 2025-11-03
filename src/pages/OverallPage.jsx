@@ -55,7 +55,7 @@ export default function OverallPage({data, bookings}) {
 
   if (!data) return "Loading...";
 
-  let bikes = data.filter(item => parseInt(item.category.id) === 2)
+  // let bikes = data.filter(item => parseInt(item.category.id) === 2)
   let helmets = data.filter(item => parseInt(item.category.id) === 5)
   let sticks = data.filter(item => parseInt(item.category.id) === 6)
   let shoes = data.filter(item => parseInt(item.category.id) === 7)
