@@ -97,7 +97,7 @@ export default function OverallPage({data, bookings}) {
           }`}
           onClick={() => setCategory("Allroundcarver")}
         >
-          Allroundcarver
+          Pistenski
         </button>
         <button
           className={`px-4 py-2 border rounded-lg ${
