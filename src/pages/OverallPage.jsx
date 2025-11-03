@@ -157,13 +157,13 @@ export default function OverallPage({data, bookings}) {
           {kids.map((item) => (<Article item={item} key={item.id} bookings={bookings} />))}
         </div>
         </div>
-        <img className="w-full h-auto mt-10" src={require('../assets/bannerbikever.webp')} alt="Personen beim Fahrradfahren"/>
+        {/* <img className="w-full h-auto mt-10" src={require('../assets/bannerbikever.webp')} alt="Personen beim Fahrradfahren"/>
         <div className="mt-16">
           <h2 className="uppercase font-bold text-2xl">Bike-Rent</h2>
         <div className="flex flex-col lg:flex-row lg:w-11/12 mx-auto max-w-screen-2xl lg:flex-wrap mb-32 lg:gap-2">
             {bikes.map((item) => (<Article item={item} key={item.id} bookings={bookings} />))}
         </div>
-        </div>
+        </div> */}
       </div>
     </>
   )
