@@ -43,6 +43,7 @@ export default function Article({item, bookings}) {
     );
 
     if (!isOverlapping) {
+      console.log(startDate, endDate);
       setArticle({...article, startDate: startDate, endDate: endDate, name: item.name, image: item.image, pricePerDay: price});
     } else {
       setBookedAlert(true);
@@ -53,26 +54,35 @@ export default function Article({item, bookings}) {
   }
 
   const handleClick = () => {
-    if(article.size !== 0) {
-      if(cart.length > 0) {
-        var checkCart = cart.filter(item => item.id === article.id);
-        if (checkCart.length > 0) {
-          setArticleBooked(true);
-        } else {
-          cart.push(article);
-        }
+  if (article.size !== 0) {
+    
+    const normalizedArticle = {
+      ...article,
+      startDate: new Date(article.startDate).toISOString().split("T")[0], // yyyy-mm-dd
+      endDate: new Date(article.endDate).toISOString().split("T")[0]
+    };
+
+    if (cart.length > 0) {
+      var checkCart = cart.filter(item => item.id === article.id);
+      if (checkCart.length > 0) {
+        setArticleBooked(true);
       } else {
-        cart.push(article);
+        cart.push(normalizedArticle);
       }
-      localStorage.setItem('cart', JSON.stringify(cart));
-      setBooked(true);
     } else {
-      setAlert(true);
-      setTimeout(() => {
-        setAlert(false);
-      }, 2000);
+      cart.push(normalizedArticle);
     }
+
+    console.log("Warenkorb", JSON.stringify(cart));
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setBooked(true);
+
+  } else {
+    setAlert(true);
+    setTimeout(() => setAlert(false), 2000);
   }
+};
+
 
   if (!item) return "Loading...";
 
