@@ -54,6 +54,7 @@ export default function ShoppingCart() {
   }, [actualCart]);
 
   const handleBooking = () => {
+
     const newErrors = {};
     if (!firstName) newErrors.firstName = "Vorname ist erforderlich";
     if (!lastName) newErrors.lastName = "Nachname ist erforderlich";
@@ -66,16 +67,16 @@ export default function ShoppingCart() {
 
     // Keine Fehler - Mutation ausführen
     JSON.parse(localStorage.getItem('cart')).forEach((item) => {
-      const startDate = new Date(item.startDate).toISOString().slice(0, 10);
-      const endDate = new Date(item.endDate).toISOString().slice(0, 10);
+      const startDate = item.startDate;
+      const endDate = item.endDate;
       mutation({
         variables: {
           firstName,
           lastName,
           email,
           phoneNumber,
-          startDate,
-          endDate,
+          startDate: startDate,
+          endDate: endDate,
           bookingDate: new Date().toISOString().slice(0, 10),
           size: item.id,
           street,

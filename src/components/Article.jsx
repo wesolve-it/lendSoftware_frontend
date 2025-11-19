@@ -53,35 +53,42 @@ export default function Article({item, bookings}) {
     }
   }
 
-  const handleClick = () => {
-  if (article.size !== 0) {
-    
-    const normalizedArticle = {
-      ...article,
-      startDate: new Date(article.startDate).toISOString().split("T")[0], // yyyy-mm-dd
-      endDate: new Date(article.endDate).toISOString().split("T")[0]
-    };
+  function toLocalDateString(date) {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().split("T")[0];
+}
 
-    if (cart.length > 0) {
-      var checkCart = cart.filter(item => item.id === article.id);
-      if (checkCart.length > 0) {
-        setArticleBooked(true);
+  const handleClick = () => {
+    if (article.size !== 0) {
+      
+      const normalizedArticle = {
+        ...article,
+        startDate: toLocalDateString(article.startDate),
+        endDate: toLocalDateString(article.endDate)
+      };
+
+      if (cart.length > 0) {
+        var checkCart = cart.filter(item => item.id === article.id);
+        if (checkCart.length > 0) {
+          setArticleBooked(true);
+        } else {
+          cart.push(normalizedArticle);
+        }
       } else {
         cart.push(normalizedArticle);
       }
+
+      console.log("Warenkorb", JSON.stringify(cart));
+      localStorage.setItem("cart", JSON.stringify(cart));
+      setBooked(true);
+
     } else {
-      cart.push(normalizedArticle);
+      setAlert(true);
+      setTimeout(() => setAlert(false), 2000);
     }
+  };
 
-    console.log("Warenkorb", JSON.stringify(cart));
-    localStorage.setItem("cart", JSON.stringify(cart));
-    setBooked(true);
-
-  } else {
-    setAlert(true);
-    setTimeout(() => setAlert(false), 2000);
-  }
-};
 
 
   if (!item) return "Loading...";
