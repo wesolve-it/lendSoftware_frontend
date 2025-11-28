@@ -72,7 +72,6 @@ export default function OverallPage({data, bookings}) {
         <p className="mb-8">Falls Sie sich so sehr in das Leihgerät verlieben, dass Sie es am liebsten gleich behalten möchten, rechnen wir Ihnen innerhalb von sechs Monaten die Leihgebühr auf den Kaufpreis an. Bitte haben jedoch Sie Verständnis dafür, dass wir Ihnen auf diesem Wege nur maximal 10 % des Kaufpreises auf Basis der Leihgebühr erstatten können.</p>
         <p className="mb-8">In unserem Leihservice finden Sie eine große Auswahl an Skier, Skischuhen, Stöcke, E-Bikes und Fahrrädern. Egal ob für Urlaub, Ausflug oder nur zum Test vor dem Kauf. Unser Angebot an Leihgeräten wird stetig erweitert. Falls Sie ein Produkt nicht auf der Liste finden kontaktieren Sie uns einfach.</p>
         <p className="mb-2">Die angegebenen Leihpreise werden pro Tag berechnet.</p>
-        <p className="text-red-600 font-bold">Wir berechnen den Montag und Dienstag nicht, da hier unser Geschäft auch nicht geöffnet ist.</p>
       </div>
       <img className="w-full h-auto mt-10" id="ski" src={require('../assets/bannskirent.webp')} alt="Personen beim  Skifahren" />
       <div className="mt-16 max-w-screen-2xl mx-auto">
