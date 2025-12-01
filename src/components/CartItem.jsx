@@ -13,11 +13,7 @@ export default function CartItem({item, deleted}) {
     let price = 0;
     let currentDate = new Date(item.startDate);
     while (currentDate <= new Date(item.endDate)) {
-      if (currentDate.getDay() > 2 || currentDate.getDay() < 1) {
-        price += parseInt(item.pricePerDay);
-      } else {
-        price += 0;
-      }
+      price += parseInt(item.pricePerDay);
       currentDate.setDate(currentDate.getDate() + 1);
     }
     setFinalPrice(price);

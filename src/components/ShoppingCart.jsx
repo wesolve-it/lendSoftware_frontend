@@ -41,11 +41,7 @@ export default function ShoppingCart() {
       actualCart.forEach((item) => {
         let currentDate = new Date(item.startDate);
         while (currentDate <= new Date(item.endDate)) {
-          if (currentDate.getDay() > 2 || currentDate.getDay() < 1) {
-            price += parseInt(item.pricePerDay);
-          } else {
-            price += 0;
-          }
+          price += parseInt(item.pricePerDay);
           currentDate.setDate(currentDate.getDate() + 1);
         }
       })
