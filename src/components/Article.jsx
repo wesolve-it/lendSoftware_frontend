@@ -26,24 +26,34 @@ export default function Article({item, bookings}) {
     bookings.map((booking) => {
       if (booking.size.id === article.id) {
         let currentDate = new Date(booking.startDate);
-        while (currentDate <= new Date(booking.endDate)) {
-          array.push(new Date(currentDate));
+        currentDate.setHours(0,0,0,0);
+
+        let endDate = new Date(booking.endDate);
+        endDate.setHours(0,0,0,0);
+
+        while (currentDate <= endDate) {
+          let d = new Date(currentDate);
+          d.setHours(0,0,0,0);
+          array.push(d);
           currentDate.setDate(currentDate.getDate() + 1);
         }
       }
-      return true;
+      return array;
     })
     setDeleteStartDate(array);
-  }, [article, bookings])
+    console.log("Gebuchte Daten", array);
+  }, [article, bookings]);
 
   const handleChange = (range) => {
     const [startDate, endDate] = range;
+    console.log("Datum", startDate, endDate);
     const isOverlapping = deleteStartDate.some(date => 
+      // console.log("Vergleichsdatum", date) ||
+      console.log("Start-Enddatum", startDate, endDate) ||
       (date >= startDate && date <= endDate)
     );
 
     if (!isOverlapping) {
-      console.log(startDate, endDate);
       setArticle({...article, startDate: startDate, endDate: endDate, name: item.name, image: item.image, pricePerDay: price});
     } else {
       setBookedAlert(true);

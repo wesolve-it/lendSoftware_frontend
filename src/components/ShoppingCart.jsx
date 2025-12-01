@@ -59,6 +59,9 @@ export default function ShoppingCart() {
     if (!firstName) newErrors.firstName = "Vorname ist erforderlich";
     if (!lastName) newErrors.lastName = "Nachname ist erforderlich";
     if (!phoneNumber) newErrors.phoneNumber = "Telefonnummer ist erforderlich";
+    if (!street) newErrors.street = "Straße ist erforderlich";
+    if (!local) newErrors.local = "Ort ist erforderlich"; 
+    if (!email) newErrors.email = "Email ist erforderlich";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -115,16 +118,19 @@ export default function ShoppingCart() {
           {errors.lastName && <p className='text-red-500 text-left mt-2'>{errors.lastName}</p>}
         </section>
         <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Straße + Hausnummer</label>
+          <label className="text-left mb-2 font-semibold">Straße + Hausnummer*</label>
           <input className="border-2 pl-2 py-2" required placeholder="Straße, Hausnummer" type="text" value={street} onChange={(e) => setStreet(e.target.value)} />
+          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.street}</p>}
         </section>
         <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Postleitzahl + Ort</label>
+          <label className="text-left mb-2 font-semibold">Postleitzahl + Ort*</label>
           <input className="border-2 pl-2 py-2" required placeholder="Postleitzahl, Ort" type="text" value={local} onChange={(e) => setLocal(e.target.value)} />
+          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.local}</p>}
         </section>
         <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Email</label>
+          <label className="text-left mb-2 font-semibold">Email*</label>
           <input className="border-2 pl-2 py-2" required placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.email}</p>}
         </section>
         <section className="flex flex-col mb-6">
           <label className="text-left mb-2 font-semibold">Telefonnummer*</label>
