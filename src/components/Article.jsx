@@ -41,15 +41,11 @@ export default function Article({item, bookings}) {
       return array;
     })
     setDeleteStartDate(array);
-    console.log("Gebuchte Daten", array);
   }, [article, bookings]);
 
   const handleChange = (range) => {
     const [startDate, endDate] = range;
-    console.log("Datum", startDate, endDate);
     const isOverlapping = deleteStartDate.some(date => 
-      // console.log("Vergleichsdatum", date) ||
-      console.log("Start-Enddatum", startDate, endDate) ||
       (date >= startDate && date <= endDate)
     );
 
@@ -88,8 +84,6 @@ export default function Article({item, bookings}) {
       } else {
         cart.push(normalizedArticle);
       }
-
-      console.log("Warenkorb", JSON.stringify(cart));
       localStorage.setItem("cart", JSON.stringify(cart));
       setBooked(true);
 

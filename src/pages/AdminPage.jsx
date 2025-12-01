@@ -166,7 +166,6 @@ export default function AdminPage() {
     });
 
     if (newArray.length > 0) {
-      console.log("Gefundene Buchungen:", newArray);
       setSortedBookings(newArray);
     } else {
       alert('Für den Zeitraum sind keine Daten vorhanden!');
