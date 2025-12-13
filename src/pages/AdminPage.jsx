@@ -216,13 +216,14 @@ export default function AdminPage() {
   // TODO: Aufteilen, dass auch startDate und endDate beachtet werden bei der Gruppierung
   // Gruppiere Buchungen nach Vorname, Nachname und Buchungsdatum
   const groupedBookings = sortedBookings.reduce((acc, booking) => {
-    const key = `${booking.firstName}-${booking.lastName}-${booking.bookingDate}`;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(booking);
-    return acc;
-  }, {});
+  // Gruppiere nach Vorname, Nachname, Buchungsdatum UND Zeitraum
+  const key = `${booking.firstName}-${booking.lastName}-${booking.bookingDate}-${booking.startDate}-${booking.endDate}`;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(booking);
+  return acc;
+}, {});
 
   const groupedItems = Object.values(groupedBookings);
 
