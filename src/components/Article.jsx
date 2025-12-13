@@ -101,8 +101,8 @@ export default function Article({item, bookings}) {
     <div className="mt-10 border-2 w-5/6 mx-auto py-10 lg:w-5/12 xl:w-3/12 rounded-xl px-3">
       {item.image ? 
       <img className="w-52 h-72 mx-auto mb-6 object-contain" src={item.image}
-           alt="Bild von dem Objekt"/> : <img className="w-52 h-52 mx-auto mb-6 object-cover" src={require('../assets/bannskirent.webp')}
-           alt="Platzhalterbild"/>}
+          alt="Bild von dem Objekt"/> : <img className="w-52 h-52 mx-auto mb-6 object-cover" src={require('../assets/bannskirent.webp')}
+          alt="Platzhalterbild"/>}
       <div className="flex-col flex mb-4">
         <p className="mb-2 font-semibold">Artikel:</p>
         <p>{item.name}</p>

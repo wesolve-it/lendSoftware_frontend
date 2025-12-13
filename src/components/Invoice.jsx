@@ -1,6 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+
 
 export default function Invoice({itemId, bookings}) {
   const [article] = useState(itemId);
@@ -49,29 +53,61 @@ export default function Invoice({itemId, bookings}) {
     return actualPrice;
   }
 
-  const downloadPDF = () => {
-    const data = document.getElementById('receipt');
-  html2canvas(data).then((canvas) => {
+  const downloadPDF = async () => {
+  const receiptElement = document.getElementById("receipt");
+
+  // 1. Rechnung rendern
+  const canvas = await html2canvas(receiptElement, { scale: 2 });
   const imgWidth = 208;
   const pageHeight = 295;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
   let heightLeft = imgHeight;
   let position = 0;
+
+  const doc = new jsPDF("p", "mm", "a4");
+
+  doc.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
   heightLeft -= pageHeight;
-  const doc = new jsPDF('p', 'mm', 'a4');
-  doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
-  while (heightLeft >= 0) {
+
+  while (heightLeft > 0) {
     position = heightLeft - imgHeight;
     doc.addPage();
-    doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+    doc.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
     heightLeft -= pageHeight;
   }
-  doc.save('Rechnung.pdf');
-  updateInvoiceDownloaded(article.id);
-});
 
+  // 2. ZUSÄTZLICHE PDF (AGB) ANHÄNGEN
+  const agbPdf = await pdfjsLib.getDocument("/AGB_Leasing-Verleih.pdf").promise;
 
+  for (let i = 1; i <= agbPdf.numPages; i++) {
+    const page = await agbPdf.getPage(i);
+    const viewport = page.getViewport({ scale: 2 });
+
+    const tempCanvas = document.createElement("canvas");
+    const context = tempCanvas.getContext("2d");
+
+    tempCanvas.width = viewport.width;
+    tempCanvas.height = viewport.height;
+
+    await page.render({
+      canvasContext: context,
+      viewport,
+    }).promise;
+
+    const imgData = tempCanvas.toDataURL("image/png");
+
+    doc.addPage();
+    doc.addImage(imgData, "PNG", 0, 0, imgWidth, pageHeight);
   }
+
+  // 3. SPEICHERN
+  doc.save(`Rechnung ${article.firstName} ${article.lastName}.pdf`);
+
+  // 4. STATUS UPDATE
+  updateInvoiceDownloaded(article.id);
+};
+
 
   const updateInvoiceDownloaded = (id) => {
     const mutation = `
