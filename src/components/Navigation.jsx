@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, {useEffect, useState} from 'react'
 import {Link, useLocation} from "react-router-dom";
-import { faBars, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faShoppingCart, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 
 export default function Navigation() {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [cartLength, setCartLength] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const targetSki = 'ski';
   const targetAccessoires = 'accessoires';
@@ -17,6 +18,15 @@ export default function Navigation() {
       setCartLength(localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')).length : 0)
     }, 2000);
   }, [])
+
+  // Scroll Effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Funktion zum Schließen der Navigation
   const closeNav = () => {
@@ -45,88 +55,204 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className="sticky z-10 top-0 flex flex-wrap items-center justify-between px-2 py-3 bg-red-600 mb-3">
+      <nav className={`sticky z-[9999] top-0 flex flex-wrap items-center justify-between px-2 transition-all duration-300 ${
+        scrolled ? 'py-2 bg-red-600 shadow-xl' : 'py-3 bg-red-600 shadow-lg'
+      }`}>
         <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
           <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-            <Link to="https://sportweber-schnaittach.de/"
-              className="text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-white"
+            <Link 
+              to="https://sportweber-schnaittach.de/"
+              className="text-sm font-bold leading-relaxed inline-block py-2 whitespace-nowrap uppercase text-white transition-transform duration-300 hover:scale-105"
             >
-              <img className='h-20 w-44 -my-4' src={require('../assets/SportWeberLogoNeuklein.png')} alt="Logo" />
+              <img 
+                className={`transition-all duration-300 ${scrolled ? 'h-16 w-36' : 'h-20 w-44'} -my-4`} 
+                src={require('../assets/SportWeberLogoNeuklein.png')} 
+                alt="Logo" 
+              />
             </Link>
             <button
-              className="text-white cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
+              className="text-white cursor-pointer text-2xl leading-none px-3 py-1 border border-solid border-transparent rounded-lg bg-transparent hover:bg-red-700 transition-colors block lg:hidden outline-none focus:outline-none"
               type="button"
               onClick={() => setNavbarOpen(!navbarOpen)}
             >
-              <FontAwesomeIcon icon={faBars} />
+              <FontAwesomeIcon icon={navbarOpen ? faTimes : faBars} />
             </button>
           </div>
-          <div
-            className={
-              "lg:flex flex-grow items-center" +
-              (navbarOpen ? " flex" : " hidden")
-            }
-            id="example-navbar-danger"
-          >
-            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-            <li className="nav-item">
+          
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex flex-grow items-center">
+            <ul className="flex flex-row list-none ml-auto gap-2">
+              <li className="nav-item">
                 <Link
-                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
-                    isActive('/') ? 'bg-red-700 rounded' : ''
+                  className={`px-4 py-2 flex items-center text-sm font-semibold leading-snug rounded-lg transition-all duration-300 ${
+                    isActive('/') 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
                   }`}
                   to="/"
                   onClick={scrollToTop}
                 >
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Übersicht</span>
+                  Übersicht
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
-                    isActive(`#${targetSki}`) ? 'bg-red-700 rounded' : ''
+                  className={`px-4 py-2 flex items-center text-sm font-semibold leading-snug rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetSki}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
                   }`}
                   to={`/#${targetSki}`}
                   onClick={closeNav}
                 >
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Ski</span>
+                  Ski
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
-                    isActive(`#${targetAccessoires}`) ? 'bg-red-700 rounded' : ''
+                  className={`px-4 py-2 flex items-center text-sm font-semibold leading-snug rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetAccessoires}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
                   }`}
                   to={`/#${targetAccessoires}`}
                   onClick={closeNav}
                 >
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Zubehör</span>
+                  Zubehör
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
-                    isActive(`#${targetKids}`) ? 'bg-red-700 rounded' : ''
+                  className={`px-4 py-2 flex items-center text-sm font-semibold leading-snug rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetKids}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
                   }`}
                   to={`/#${targetKids}`}
                   onClick={closeNav}
                 >
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Kinder</span>
+                  Kinder
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
-                    isActive('/warenkorb') ? 'bg-red-700 rounded' : ''
+                  className={`px-4 py-2 flex items-center gap-2 text-sm font-semibold leading-snug rounded-lg transition-all duration-300 relative ${
+                    isActive('/warenkorb') 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
                   }`}
                   to="/warenkorb"
                   onClick={closeNav}
                 >
-                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-                  <span>Warenkorb | {cartLength}</span>
+                  <FontAwesomeIcon icon={faShoppingCart} />
+                  <span>Warenkorb</span>
+                  {cartLength > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-yellow-400 text-red-600 text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-md animate-pulse">
+                      {cartLength}
+                    </span>
+                  )}
                 </Link>
               </li>
             </ul>
           </div>
+
+          {/* Mobile Menu */}
+          <div
+            className={`lg:hidden fixed top-0 right-0 h-screen w-72 bg-red-600 shadow-2xl transform transition-transform duration-300 ease-in-out ${
+              navbarOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className="flex justify-between items-center p-4 border-b border-red-700">
+              <h3 className="text-white font-bold text-lg">Menü</h3>
+              <button
+                onClick={closeNav}
+                className="text-white text-2xl hover:text-red-200 transition-colors"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <ul className="flex flex-col p-4 space-y-2">
+              <li>
+                <Link
+                  className={`px-4 py-3 flex items-center text-sm font-semibold rounded-lg transition-all duration-300 ${
+                    isActive('/') 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
+                  }`}
+                  to="/"
+                  onClick={scrollToTop}
+                >
+                  Übersicht
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={`px-4 py-3 flex items-center text-sm font-semibold rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetSki}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
+                  }`}
+                  to={`/#${targetSki}`}
+                  onClick={closeNav}
+                >
+                  Ski
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={`px-4 py-3 flex items-center text-sm font-semibold rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetAccessoires}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
+                  }`}
+                  to={`/#${targetAccessoires}`}
+                  onClick={closeNav}
+                >
+                  Zubehör
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={`px-4 py-3 flex items-center text-sm font-semibold rounded-lg transition-all duration-300 ${
+                    isActive(`#${targetKids}`) 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
+                  }`}
+                  to={`/#${targetKids}`}
+                  onClick={closeNav}
+                >
+                  Kinder
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={`px-4 py-3 flex items-center gap-2 text-sm font-semibold rounded-lg transition-all duration-300 relative ${
+                    isActive('/warenkorb') 
+                      ? 'bg-white text-red-600 shadow-md' 
+                      : 'hover:bg-red-700 text-white'
+                  }`}
+                  to="/warenkorb"
+                  onClick={closeNav}
+                >
+                  <FontAwesomeIcon icon={faShoppingCart} />
+                  <span>Warenkorb</span>
+                  {cartLength > 0 && (
+                    <span className="ml-auto bg-yellow-400 text-red-600 text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-md">
+                      {cartLength}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Mobile Overlay */}
+          {navbarOpen && (
+            <div
+              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-[-1]"
+              onClick={closeNav}
+            />
+          )}
         </div>
       </nav>
     </>

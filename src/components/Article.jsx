@@ -6,7 +6,7 @@ import Alert from './Alert';
 import { BookedAlert } from './Alert';
 import ArticleBooked from './ArticleBooked';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faCheck, faCalendar, faRuler } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faCheck, faCalendar, faRuler, faEuroSign } from '@fortawesome/free-solid-svg-icons';
 
 export default function Article({item, bookings}) {
   const [price] = useState(item.sizes[0].pricePerDay);
@@ -114,6 +114,10 @@ export default function Article({item, bookings}) {
       '&:hover': {
         backgroundColor: state.isSelected ? '#dc2626' : '#fee2e2'
       }
+    }),
+    menuPortal: (provided) => ({
+      ...provided,
+      zIndex: 9999
     })
   };
 
@@ -121,7 +125,7 @@ export default function Article({item, bookings}) {
 
   return (
     <div className="group mt-10 w-5/6 mx-auto lg:w-5/12 xl:w-3/12 transition-all duration-300 hover:scale-105">
-      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-visible flex flex-col h-full relative z-10 hover:z-30">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 h-80 flex-shrink-0">
           {item.image ? 
@@ -164,6 +168,8 @@ export default function Article({item, bookings}) {
               options={item.sizes}
               styles={customSelectStyles}
               placeholder="Größe auswählen..."
+              menuPortalTarget={document.body}
+              menuPosition="fixed"
             />
           </div>
 
@@ -185,6 +191,25 @@ export default function Article({item, bookings}) {
                 excludeDates={deleteStartDate}
                 minDate={new Date()}
                 placeholderText="Zeitraum auswählen"
+                calendarClassName="modern-datepicker"
+                portalId="datepicker-portal"
+                popperClassName="datepicker-popper"
+                popperPlacement="auto"
+                popperModifiers={[
+                  {
+                    name: 'preventOverflow',
+                    options: {
+                      rootBoundary: 'viewport',
+                      padding: 8,
+                    },
+                  },
+                  {
+                    name: 'flip',
+                    options: {
+                      fallbackPlacements: ['top', 'bottom', 'left', 'right'],
+                    },
+                  },
+                ]}
               />
             </div>
           </div>
@@ -212,6 +237,130 @@ export default function Article({item, bookings}) {
           </div>
         </div>
       </div>
+      
+      {/* Inline Styles für DatePicker */}
+      <style>{`
+        .datepicker-popper {
+          z-index: 10000 !important;
+        }
+
+        .modern-datepicker {
+          font-family: inherit;
+          border-radius: 1rem !important;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2) !important;
+          border: 1px solid #e5e7eb !important;
+          overflow: hidden;
+        }
+
+        .react-datepicker-popper {
+          z-index: 10000 !important;
+        }
+
+        .react-datepicker-popper[data-placement^="bottom"] {
+          padding-top: 8px;
+        }
+
+        .react-datepicker-popper[data-placement^="top"] {
+          padding-bottom: 8px;
+        }
+
+        .react-datepicker {
+          border: none !important;
+          border-radius: 1rem !important;
+          font-family: inherit !important;
+        }
+
+        .react-datepicker__header {
+          background-color: #dc2626 !important;
+          border-bottom: none !important;
+          border-radius: 1rem 1rem 0 0 !important;
+          padding-top: 1rem !important;
+        }
+
+        .react-datepicker__current-month,
+        .react-datepicker__day-name {
+          color: white !important;
+          font-weight: 600 !important;
+        }
+
+        .react-datepicker__day {
+          color: #374151 !important;
+          border-radius: 0.5rem !important;
+          transition: all 0.2s !important;
+          margin: 0.2rem !important;
+        }
+
+        .react-datepicker__day:hover {
+          background-color: #fee2e2 !important;
+          color: #dc2626 !important;
+        }
+
+        .react-datepicker__day--selected,
+        .react-datepicker__day--in-range,
+        .react-datepicker__day--in-selecting-range {
+          background-color: #dc2626 !important;
+          color: white !important;
+          border-radius: 0.5rem !important;
+        }
+
+        .react-datepicker__day--keyboard-selected {
+          background-color: #fee2e2 !important;
+          color: #dc2626 !important;
+        }
+
+        .react-datepicker__day--disabled,
+        .react-datepicker__day--excluded {
+          color: #d1d5db !important;
+          cursor: not-allowed !important;
+        }
+
+        .react-datepicker__day--excluded {
+          text-decoration: line-through !important;
+        }
+
+        .react-datepicker__navigation {
+          top: 1rem !important;
+        }
+
+        .react-datepicker__navigation-icon::before {
+          border-color: white !important;
+        }
+
+        .react-datepicker__navigation:hover *::before {
+          border-color: #fee2e2 !important;
+        }
+
+        .react-datepicker__month-container {
+          padding: 0.5rem !important;
+        }
+
+        .react-datepicker__day--range-start,
+        .react-datepicker__day--range-end {
+          background-color: #b91c1c !important;
+          font-weight: 600 !important;
+        }
+
+        .react-datepicker__triangle {
+          display: none !important;
+        }
+
+        @media (max-width: 768px) {
+          .react-datepicker {
+            font-size: 0.9rem !important;
+          }
+          
+          .react-datepicker__day {
+            width: 2.2rem !important;
+            line-height: 2.2rem !important;
+            margin: 0.15rem !important;
+          }
+
+          .react-datepicker__day-name {
+            width: 2.2rem !important;
+            line-height: 2.2rem !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }
