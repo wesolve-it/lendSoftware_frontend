@@ -9,6 +9,7 @@ import AdminPage from "./pages/AdminPage";
 import Invoice from "./components/Invoice";
 import PrivateRoute from './components/common/PrivateRoute';
 import LoginPage from './pages/LoginPage';
+import Footer from './components/Footer';
 
 function App() {
   const [articles, setArticles] = useState(null);
@@ -91,7 +92,11 @@ function App() {
       });
   }, [query]);
 
-  if (!articles) return "Loading...";
+  if (!articles) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="spinner"></div>
+    </div>
+  );
 
   // const articlesWithImages = articles.map(article => {
   //   return fetch(article.image, {
@@ -120,6 +125,7 @@ function App() {
           <Route path="/admin" element={<AdminPage />} />
         </Route>
       </Routes>
+      <Footer />
     </div>
   );
 }

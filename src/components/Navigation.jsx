@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, {useEffect, useState} from 'react'
-import {Link} from "react-router-dom";
-import { faBars } from '@fortawesome/free-solid-svg-icons'
+import {Link, useLocation} from "react-router-dom";
+import { faBars, faShoppingCart } from '@fortawesome/free-solid-svg-icons'
 
 
 export default function Navigation() {
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [cartLength, setCartLength] = useState(0);
+  const location = useLocation();
   const targetSki = 'ski';
   const targetAccessoires = 'accessoires';
   const targetKids = 'kinder';
@@ -16,6 +17,31 @@ export default function Navigation() {
       setCartLength(localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')).length : 0)
     }, 2000);
   }, [])
+
+  // Funktion zum Schließen der Navigation
+  const closeNav = () => {
+    setNavbarOpen(false);
+  };
+
+  // Funktion zum Scrollen nach oben
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeNav();
+  };
+
+  // Funktion um zu prüfen, ob der Link aktiv ist
+  const isActive = (path) => {
+    // Für die Startseite: nur aktiv wenn kein Hash vorhanden ist
+    if (path === '/') {
+      return location.pathname === '/' && !location.hash;
+    }
+    // Für Hash-Links: prüfe nur den Hash
+    if (path.startsWith('#')) {
+      return location.hash === path;
+    }
+    // Für andere Pfade: normale Pfad-Prüfung
+    return location.pathname === path;
+  };
 
   return (
     <>
@@ -45,37 +71,58 @@ export default function Navigation() {
             <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
             <li className="nav-item">
                 <Link
-                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                 to="/">
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Übersicht</span>
+                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
+                    isActive('/') ? 'bg-red-700 rounded' : ''
+                  }`}
+                  to="/"
+                  onClick={scrollToTop}
+                >
+                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Übersicht</span>
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                 to={`/#${targetSki}`}>
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Ski</span>
+                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
+                    isActive(`#${targetSki}`) ? 'bg-red-700 rounded' : ''
+                  }`}
+                  to={`/#${targetSki}`}
+                  onClick={closeNav}
+                >
+                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Ski</span>
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                  to={`/#${targetAccessoires}`}>
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Zubehör</span>
+                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
+                    isActive(`#${targetAccessoires}`) ? 'bg-red-700 rounded' : ''
+                  }`}
+                  to={`/#${targetAccessoires}`}
+                  onClick={closeNav}
+                >
+                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Zubehör</span>
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                  to={`/#${targetKids}`}>
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Kinder</span>
+                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
+                    isActive(`#${targetKids}`) ? 'bg-red-700 rounded' : ''
+                  }`}
+                  to={`/#${targetKids}`}
+                  onClick={closeNav}
+                >
+                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-0">Kinder</span>
                 </Link>
               </li>
               <li className="nav-item">
                 <Link
-                  className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                 to="/warenkorb">
-                  <i className="text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Warenkorb | {cartLength}</span>
+                  className={`px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75 ${
+                    isActive('/warenkorb') ? 'bg-red-700 rounded' : ''
+                  }`}
+                  to="/warenkorb"
+                  onClick={closeNav}
+                >
+                  <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                  <span>Warenkorb | {cartLength}</span>
                 </Link>
               </li>
             </ul>

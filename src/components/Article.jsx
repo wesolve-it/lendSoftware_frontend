@@ -5,6 +5,8 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Alert from './Alert';
 import { BookedAlert } from './Alert';
 import ArticleBooked from './ArticleBooked';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart, faCheck, faCalendar, faRuler } from '@fortawesome/free-solid-svg-icons';
 
 export default function Article({item, bookings}) {
   const [price] = useState(item.sizes[0].pricePerDay);
@@ -60,10 +62,10 @@ export default function Article({item, bookings}) {
   }
 
   function toLocalDateString(date) {
-  const d = new Date(date);
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  return d.toISOString().split("T")[0];
-}
+    const d = new Date(date);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split("T")[0];
+  }
 
   const handleClick = () => {
     if (article.size !== 0) {
@@ -93,46 +95,123 @@ export default function Article({item, bookings}) {
     }
   };
 
-
+  // Custom Styles für React-Select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? '#dc2626' : '#e5e7eb',
+      boxShadow: state.isFocused ? '0 0 0 1px #dc2626' : 'none',
+      '&:hover': {
+        borderColor: '#dc2626'
+      },
+      borderRadius: '0.5rem',
+      padding: '0.25rem'
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#dc2626' : state.isFocused ? '#fee2e2' : 'white',
+      color: state.isSelected ? 'white' : '#1f2937',
+      '&:hover': {
+        backgroundColor: state.isSelected ? '#dc2626' : '#fee2e2'
+      }
+    })
+  };
 
   if (!item) return "Loading...";
 
   return (
-    <div className="mt-10 border-2 w-5/6 mx-auto py-10 lg:w-5/12 xl:w-3/12 rounded-xl px-3">
-      {item.image ? 
-      <img className="w-52 h-72 mx-auto mb-6 object-contain" src={item.image}
-          alt="Bild von dem Objekt"/> : <img className="w-52 h-52 mx-auto mb-6 object-cover" src={require('../assets/bannskirent.webp')}
-          alt="Platzhalterbild"/>}
-      <div className="flex-col flex mb-4">
-        <p className="mb-2 font-semibold">Artikel:</p>
-        <p>{item.name}</p>
+    <div className="group mt-10 w-5/6 mx-auto lg:w-5/12 xl:w-3/12 transition-all duration-300 hover:scale-105">
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+        {/* Image Container */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 h-80 flex-shrink-0">
+          {item.image ? 
+            <img 
+              className="w-full h-full object-contain p-6 transition-transform duration-300 group-hover:scale-110" 
+              src={item.image}
+              alt="Bild von dem Objekt"
+            /> : 
+            <img 
+              className="w-full h-full object-cover" 
+              src={require('../assets/bannskirent.webp')}
+              alt="Platzhalterbild"
+            />
+          }
+        </div>
+
+        {/* Content Container */}
+        <div className="p-6 space-y-5 flex flex-col flex-grow">
+          {/* Artikel Name & Preis */}
+          <div className="flex items-start justify-between border-b-2 border-gray-100 pb-4 gap-4">
+            <div className="border-l-4 border-red-600 pl-4 flex-1 min-w-0">
+              <h3 className="text-xl font-bold text-gray-800 leading-tight">{item.name}</h3>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-sm text-gray-500 font-medium">Preis/Tag</p>
+              <p className="text-2xl font-bold text-red-600 whitespace-nowrap">{price}€</p>
+            </div>
+          </div>
+
+          {/* Größenauswahl */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <FontAwesomeIcon icon={faRuler} className="text-red-600" />
+              Größe wählen
+            </label>
+            <Select 
+              className="w-full" 
+              value={article.size} 
+              onChange={setArticle} 
+              options={item.sizes}
+              styles={customSelectStyles}
+              placeholder="Größe auswählen..."
+            />
+          </div>
+
+          {/* Datumsauswahl */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+              <FontAwesomeIcon icon={faCalendar} className="text-red-600" />
+              Zeitraum wählen
+            </label>
+            <div className="relative">
+              <DatePicker
+                className="border-2 border-gray-200 rounded-lg w-full py-3 px-4 text-center focus:border-red-600 focus:outline-none transition-colors"
+                selected={article.startDate}
+                onChange={handleChange}
+                startDate={article.startDate}
+                endDate={article.endDate}
+                selectsRange
+                dateFormat="dd.MM.yyyy"
+                excludeDates={deleteStartDate}
+                minDate={new Date()}
+                placeholderText="Zeitraum auswählen"
+              />
+            </div>
+          </div>
+
+          {/* Alerts */}
+          <div className="min-h-[40px]">
+            {alert && <Alert />}
+            {bookedAlert && <BookedAlert />}
+            {articleBooked && <ArticleBooked />}
+          </div>
+
+          {/* Action Button - am Ende der Card */}
+          <div className="mt-auto">
+            <button 
+              onClick={handleClick} 
+              className={`w-full py-4 rounded-lg font-bold text-white transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-3 shadow-md hover:shadow-lg ${
+                booked 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-red-600 hover:bg-red-700'
+              }`}
+            >
+              <FontAwesomeIcon icon={booked ? faCheck : faShoppingCart} />
+              <span>{booked ? 'Hinzugefügt' : 'In den Warenkorb'}</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="flex-col flex mb-4">
-        <p className="font-semibold mb-2">Größe: </p>
-        <Select className="w-4/6 mx-auto" value={article.size} onChange={setArticle} options={item.sizes}/>
-      </div>
-      <div className="mb-4">
-        <p className="font-semibold mb-2">Preis pro Tag:</p>
-        <p>{price} €</p>
-      </div>
-      <div className="flex-col flex mb-10">
-        <p className="font-semibold mb-2">Tage wählen:</p>
-        <DatePicker
-          className="border-2 rounded-lg w-4/6 py-3 text-center"
-          selected={article.startDate}
-          onChange={handleChange}
-          startDate={article.startDate}
-          endDate={article.endDate}
-          selectsRange
-          dateFormat="dd.M.yy"
-          excludeDates={deleteStartDate}
-          minDate={new Date()}
-        />
-      </div>
-      {alert ? <Alert /> : null}
-      {bookedAlert ? <BookedAlert /> : null}
-      {articleBooked ? <ArticleBooked /> : null}
-      <button onClick={handleClick} className="bg-red-600 text-white w-4/6 rounded-lg py-3">{booked ? 'Hinzugefügt' : 'In den Warenkorb'}</button>
     </div>
   )
 }

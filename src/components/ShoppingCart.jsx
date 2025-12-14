@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import CartItem from "./CartItem";
 import { gql, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShoppingCart, faUser, faEnvelope, faPhone, faMapMarkerAlt, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
 
 const BOOK_CART = gql`
     mutation CreateBooking($firstName: String, $lastName: String, $email: String, $phoneNumber: String, $startDate: Date, $endDate: Date, $bookingDate: Date, $size: Int, $street: String, $local: String, $note: String) {
@@ -30,7 +32,7 @@ export default function ShoppingCart() {
   const [local, setLocal] = useState('');
   const [note, setNote] = useState('');
   const [actualCart, setActualCart] = useState(localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : []);
-  const [mutation] = useMutation(BOOK_CART);
+  const [mutation, { loading }] = useMutation(BOOK_CART);
   const navigate = useNavigate();
   const [deleted, setDeleted] = useState(false);
   const [errors, setErrors] = useState({});
@@ -50,7 +52,6 @@ export default function ShoppingCart() {
   }, [actualCart]);
 
   const handleBooking = () => {
-
     const newErrors = {};
     if (!firstName) newErrors.firstName = "Vorname ist erforderlich";
     if (!lastName) newErrors.lastName = "Nachname ist erforderlich";
@@ -61,6 +62,8 @@ export default function ShoppingCart() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Scroll zum ersten Fehler
+      window.scrollTo({ top: 400, behavior: 'smooth' });
       return;
     }
 
@@ -96,52 +99,185 @@ export default function ShoppingCart() {
     setActualCart(JSON.parse(localStorage.getItem('cart')))
   }, [deleted]);
 
+  const InputField = ({ label, icon, error, ...props }) => (
+    <div className="space-y-2">
+      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <FontAwesomeIcon icon={icon} className="text-red-600" />
+        {label}
+      </label>
+      <input
+        className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:border-red-600 ${
+          error ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+        }`}
+        {...props}
+      />
+      {error && (
+        <p className="text-red-600 text-sm flex items-center gap-1">
+          <span>⚠</span> {error}
+        </p>
+      )}
+    </div>
+  );
+
   return (
-    <div>
-      <h2 className="text-4xl font-bold mt-10">Warenkorb</h2>
-      <div className="flex flex-col gap-14 w-8/12 mx-auto mt-20">
-        {actualCart ? actualCart.map((item) => <CartItem item={item} key={item.id} deleted={handleDelete} />) : null}
+    <div className="bg-gray-50 min-h-screen pb-20">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-4">
+            <FontAwesomeIcon icon={faShoppingCart} className="text-4xl" />
+            <h1 className="text-4xl md:text-5xl font-bold">Warenkorb</h1>
+          </div>
+        </div>
       </div>
-      <div className="flex flex-col mt-12 w-8/12 mx-auto lg:w-4/12">
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Vorname*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Vorname" type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.firstName}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Nachname*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Nachname" type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-          {errors.lastName && <p className='text-red-500 text-left mt-2'>{errors.lastName}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Straße + Hausnummer*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Straße, Hausnummer" type="text" value={street} onChange={(e) => setStreet(e.target.value)} />
-          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.street}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Postleitzahl + Ort*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Postleitzahl, Ort" type="text" value={local} onChange={(e) => setLocal(e.target.value)} />
-          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.local}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Email*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          {errors.firstName && <p className='text-red-500 text-left mt-2'>{errors.email}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Telefonnummer*</label>
-          <input className="border-2 pl-2 py-2" required placeholder="Telefonnummer" type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-          {errors.phoneNumber && <p className='text-red-500 text-left mt-2'>{errors.phoneNumber}</p>}
-        </section>
-        <section className="flex flex-col mb-6">
-          <label className="text-left mb-2 font-semibold">Weiteres</label>
-          <textarea className="border-2 pl-2 py-2" placeholder="Weitere Anliegen" type="text" value={note} onChange={(e) => setNote(e.target.value)} />
-        </section>
+
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {actualCart && actualCart.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items - 2/3 width */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-2xl shadow-md p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Deine Artikel</h2>
+                <div className="space-y-4">
+                  {actualCart.map((item) => (
+                    <CartItem item={item} key={item.id} deleted={handleDelete} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Kontaktformular */}
+              <div className="bg-white rounded-2xl shadow-md p-6 md:p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Kontaktdaten</h2>
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <InputField
+                      label="Vorname*"
+                      icon={faUser}
+                      placeholder="Max"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      error={errors.firstName}
+                    />
+                    <InputField
+                      label="Nachname*"
+                      icon={faUser}
+                      placeholder="Mustermann"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      error={errors.lastName}
+                    />
+                  </div>
+
+                  <InputField
+                    label="Email*"
+                    icon={faEnvelope}
+                    placeholder="max@beispiel.de"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={errors.email}
+                  />
+
+                  <InputField
+                    label="Telefonnummer*"
+                    icon={faPhone}
+                    placeholder="+49 123 456789"
+                    type="text"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    error={errors.phoneNumber}
+                  />
+
+                  <InputField
+                    label="Straße + Hausnummer*"
+                    icon={faMapMarkerAlt}
+                    placeholder="Musterstraße 123"
+                    type="text"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
+                    error={errors.street}
+                  />
+
+                  <InputField
+                    label="Postleitzahl + Ort*"
+                    icon={faMapMarkerAlt}
+                    placeholder="12345 Musterstadt"
+                    type="text"
+                    value={local}
+                    onChange={(e) => setLocal(e.target.value)}
+                    error={errors.local}
+                  />
+
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <FontAwesomeIcon icon={faNoteSticky} className="text-red-600" />
+                      Weitere Anmerkungen (optional)
+                    </label>
+                    <textarea
+                      className="w-full border-2 border-gray-200 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:border-red-600 hover:border-gray-300 min-h-[100px]"
+                      placeholder="Besondere Wünsche oder Anmerkungen..."
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Zusammenfassung - 1/3 width - Sticky */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-md p-6 sticky top-24">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Zusammenfassung</h2>
+                
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Artikel im Warenkorb:</span>
+                    <span className="font-semibold">{actualCart.length}</span>
+                  </div>
+                  
+                  <div className="border-t-2 border-gray-100 pt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-semibold text-gray-900">Gesamtpreis:</span>
+                      <span className="text-3xl font-bold text-red-600">{finalPrice}€</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleBooking}
+                  disabled={loading}
+                  className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all duration-300 transform active:scale-95 ${
+                    loading
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {loading ? 'Wird gebucht...' : 'Jetzt verbindlich buchen'}
+                </button>
+
+                <p className="text-xs text-gray-500 text-center mt-4">
+                  Mit dem Klick auf "Jetzt verbindlich buchen" akzeptieren Sie unsere AGB
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Leerer Warenkorb
+          <div className="bg-white rounded-2xl shadow-md p-12 text-center">
+            <FontAwesomeIcon icon={faShoppingCart} className="text-6xl text-gray-300 mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Dein Warenkorb ist leer</h2>
+            <p className="text-gray-600 mb-6">Füge Artikel hinzu, um mit der Buchung zu beginnen</p>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Zur Übersicht
+            </button>
+          </div>
+        )}
       </div>
-      <p className=" mx-auto w-9/12 font-bold text-xl mt-10 lg:mt-20">Gesamtpreis: {finalPrice} €</p>
-      <button className="bg-red-600 px-16 py-3 text-white font-semibold mt-14 mb-40"
-        onClick={handleBooking}
-      >Buchen</button>
     </div>
   )
 }
