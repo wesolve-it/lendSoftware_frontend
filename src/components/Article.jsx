@@ -6,7 +6,7 @@ import Alert from './Alert';
 import { BookedAlert } from './Alert';
 import ArticleBooked from './ArticleBooked';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faCheck, faCalendar, faRuler, faEuroSign } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faCheck, faCalendar, faRuler } from '@fortawesome/free-solid-svg-icons';
 
 export default function Article({item, bookings}) {
   const [price] = useState(item.sizes[0].pricePerDay);
