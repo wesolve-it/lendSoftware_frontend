@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
 import Invoice from '../components/Invoice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
