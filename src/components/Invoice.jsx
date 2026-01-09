@@ -187,9 +187,10 @@ export default function Invoice({itemId, bookings, onClose}) {
                       <p className="text-left text-[10px]">Nürnberger Straße 51, 91220 Schnaittach</p>
                       <section className="h-[0.5px] w-60 bg-black mt-1" />
                       <div className="mt-3 text-left text-xs">
-                        <p>{article.lastName} {article.firstName}</p>
-                        <p>{article.street}</p>
-                        <p>{article.local}</p>
+                        <p>{article?.lastName} {article?.firstName}</p>
+                        <p>{article?.street}</p>
+                        <p>{article?.local}</p>
+                        <p>{article?.phoneNumber || null}</p>
                         <p>DE</p>
                       </div>
                       <div className="mt-6 text-left text-xs">
@@ -214,6 +215,7 @@ export default function Invoice({itemId, bookings, onClose}) {
                   </div>
 
                   {group.items.map((item, index) => {
+                    console.log(item);
                     return (
                       <div key={index} className="flex flex-row mt-10 text-xs">
                         {index === 3 ? <section className='h-52' /> : index === 9 ? <section className='h-60' /> : null}
@@ -233,6 +235,11 @@ export default function Invoice({itemId, bookings, onClose}) {
                           <p>Anzahl</p>
                           <section className="h-[0.5px] bg-black mt-2 mb-2" />
                           <p className="ml-12">1</p>
+                        </section>
+                        <section className="basis-1/12">
+                          <p>Einzelpreis</p>
+                          <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                          <p className="ml-4">{item.size.pricePerDay ? item.size.pricePerDay : null} €</p>
                         </section>
                         <section className="basis-2/12">
                           <p>USt.-Satz</p>
