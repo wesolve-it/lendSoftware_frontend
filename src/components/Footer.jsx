@@ -128,7 +128,7 @@ export default function Footer() {
               <li className="flex items-start gap-3">
                 <FontAwesomeIcon icon={faClock} className="text-red-600 mt-1" />
                 <div>
-                  <p className="font-semibold text-white text-left">Dienstag - Freitag</p>
+                  <p className="font-semibold text-white text-left">Mittwoch - Freitag</p>
                   <p className="text-sm text-left">10:00 - 12:00 Uhr</p>
                   <p className="text-sm text-left">14:00 - 18:00 Uhr</p>
                 </div>
