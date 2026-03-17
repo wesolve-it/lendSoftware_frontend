@@ -1,9 +1,7 @@
 import {useEffect, useState} from 'react';
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+import { ensurePdfWorker } from '../utils/pdfjs';
 
 
 export default function Invoice({itemId, bookings, onClose}) {
@@ -16,6 +14,7 @@ export default function Invoice({itemId, bookings, onClose}) {
 
   // Gruppiere Buchungen nach Zeitraum
   useEffect(() => {
+    ensurePdfWorker();
     const groups = groupBookingsByPeriod(bookings, itemId);
     setGroupedBookings(groups);
   }, [bookings, itemId]);
@@ -94,27 +93,30 @@ export default function Invoice({itemId, bookings, onClose}) {
       }
 
       // AGB anhängen
-      const agbPdf = await pdfjsLib.getDocument("/AGB_Leasing-Verleih.pdf").promise;
+      const pdfjsLib = await ensurePdfWorker();
+      if (pdfjsLib) {
+        const agbPdf = await pdfjsLib.getDocument("/AGB_Leasing-Verleih.pdf").promise;
 
-      for (let i = 1; i <= agbPdf.numPages; i++) {
-        const page = await agbPdf.getPage(i);
-        const viewport = page.getViewport({ scale: 2 });
+        for (let i = 1; i <= agbPdf.numPages; i++) {
+          const page = await agbPdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
 
-        const tempCanvas = document.createElement("canvas");
-        const context = tempCanvas.getContext("2d");
+          const tempCanvas = document.createElement("canvas");
+          const context = tempCanvas.getContext("2d");
 
-        tempCanvas.width = viewport.width;
-        tempCanvas.height = viewport.height;
+          tempCanvas.width = viewport.width;
+          tempCanvas.height = viewport.height;
 
-        await page.render({
-          canvasContext: context,
-          viewport,
-        }).promise;
+          await page.render({
+            canvasContext: context,
+            viewport,
+          }).promise;
 
-        const imgData = tempCanvas.toDataURL("image/png");
+          const imgData = tempCanvas.toDataURL("image/png");
 
-        doc.addPage();
-        doc.addImage(imgData, "PNG", 0, 0, imgWidth, pageHeight);
+          doc.addPage();
+          doc.addImage(imgData, "PNG", 0, 0, imgWidth, pageHeight);
+        }
       }
 
       // Speichere mit Zeitraum im Dateinamen

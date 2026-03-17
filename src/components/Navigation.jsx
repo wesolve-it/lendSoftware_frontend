@@ -2,22 +2,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, {useEffect, useState} from 'react'
 import {Link, useLocation} from "react-router-dom";
 import { faBars, faShoppingCart, faTimes } from '@fortawesome/free-solid-svg-icons'
+import { useCart } from '../context/CartContext';
 
 
 export default function Navigation() {
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [cartLength, setCartLength] = useState(0);
+  const { cart } = useCart();
+  const cartLength = cart.length;
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const targetSki = 'ski';
   const targetAccessoires = 'accessoires';
   const targetKids = 'kinder';
-
-  useEffect(() => {
-    setInterval(() => {
-      setCartLength(localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')).length : 0)
-    }, 2000);
-  }, [])
 
   // Scroll Effect
   useEffect(() => {

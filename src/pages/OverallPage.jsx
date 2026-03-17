@@ -1,58 +1,74 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import Article from '../components/Article'
 import Select from "react-select";
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSkiing, faHelmetSafety, faShoePrints, faChild } from '@fortawesome/free-solid-svg-icons';
+import { faSkiing, faHelmetSafety, faShoePrints, faChild, faBicycle } from '@fortawesome/free-solid-svg-icons';
 
 export default function OverallPage({data, bookings}) {
   const [filter, setFilter] = useState(null);
-  const [sizeOption, setSizeOption] = useState([]);
   const [category, setCategory] = useState("Racecarver")
-  const [ski, setSki] = useState([]);
   const location = useLocation();
 
   useEffect(() => {
-    const elementId = location.hash.substring(1);
-    scrollToElement(elementId);
+    if (location.hash) {
+      const elementId = location.hash.substring(1);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+    }
   }, [location]);
 
-  useEffect(() => {
-    let sizes = [];
-    let endSizes = [];
-    const ski = data.filter(item => parseInt(item.category.id) === 1);
-    Object.entries(ski).forEach(([key, value]) => value.sizes.forEach((item) => sizes.push(item.label)));
-    sizes = [...new Set(sizes)].slice().sort((a, b) => a - b);
-    sizes.forEach((size) => endSizes.push({value: size, label: size}))
-    setSizeOption(endSizes);
-    setSki(data.filter(item => parseInt(item.category.id) === 1))
-  }, [data])
+  // Derived state using useMemo to avoid re-calculating on every render
+  const { helmets, sticks, shoes, kids, skiItems, bikes } = useMemo(() => {
+    if (!data) return { helmets: [], sticks: [], shoes: [], kids: [], skiItems: [], bikes: [] };
+    
+    return {
+      helmets: data.filter(item => parseInt(item.category.id) === 5),
+      sticks: data.filter(item => parseInt(item.category.id) === 6),
+      shoes: data.filter(item => parseInt(item.category.id) === 7),
+      kids: data.filter(item => parseInt(item.category.id) === 4),
+      skiItems: data.filter(item => parseInt(item.category.id) === 1),
+      bikes: data.filter(item => parseInt(item.category.id) === 2)
+    };
+  }, [data]);
 
-  useEffect(() => {
-    let array = [];
-    let newArray = data.filter(item => parseInt(item.category.id) === 1)
-    if (filter) {
-      newArray.map((item) => {
-        item.sizes.forEach((size) => {
-          if (size.label === filter.label) {
-            array.push(item);
-          }
-        })
-        return true;
-      })
-      setSki(array);
-    }
-  }, [filter, data]);
+  const sizeOptions = useMemo(() => {
+    const sizes = new Set();
+    skiItems.forEach(item => {
+      item.sizes.forEach(size => sizes.add(size.label));
+    });
+    
+    return Array.from(sizes)
+      .sort((a, b) => a - b)
+      .map(size => ({ value: size, label: size }));
+  }, [skiItems]);
 
-  const scrollToElement = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.scrollIntoView({behavior: 'smooth', block: 'start'});
-    }
-  }
+  const filteredSki = useMemo(() => {
+    if (!filter) return skiItems;
+    
+    return skiItems.filter(item => 
+      item.sizes.some(size => size.label === filter.label)
+    );
+  }, [skiItems, filter]);
 
-  // Custom Styles für React-Select
+  // Filter by driving profile (category)
+  const displayedSki = useMemo(() => {
+    const categoryMap = {
+      "Racecarver": 1,
+      "Allroundcarver": 2,
+      "Powder/Allmountain": 3
+    };
+    
+    const targetProfileId = categoryMap[category];
+    if (!targetProfileId) return [];
+
+    return filteredSki.filter(item => parseInt(item.drivingProfile?.id) === targetProfileId);
+  }, [filteredSki, category]);
+
+  // Custom Styles for React-Select
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -81,17 +97,9 @@ export default function OverallPage({data, bookings}) {
 
   if (!data) return (
     <div className="flex justify-center items-center h-screen">
-      <div className="spinner"></div>
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
     </div>
   );
-
-  let helmets = data.filter(item => parseInt(item.category.id) === 5)
-  let sticks = data.filter(item => parseInt(item.category.id) === 6)
-  let shoes = data.filter(item => parseInt(item.category.id) === 7)
-  let kids = data.filter(item => parseInt(item.category.id) === 4)
-  let racecarver = ski.filter(item => parseInt(item.drivingProfile?.id) === 1);
-  let allround = ski.filter(item => parseInt(item.drivingProfile?.id) === 2);
-  let powder = ski.filter(item => parseInt(item.drivingProfile?.id) === 3);
 
   return (
     <div className="bg-gray-50">
@@ -101,9 +109,6 @@ export default function OverallPage({data, bookings}) {
           <h1 className="text-2xl md:text-3xl font-bold text-center">
             SKI & BIKE RENT - Skier, Skischuhe und Bike Verleih bei Sport Weber
           </h1>
-          {/* <p className="text-xl text-center text-red-100 mb-8">
-            Skier, Skischuhe und Bike Verleih bei Sport Weber
-          </p> */}
         </div>
       </div>
 
@@ -130,10 +135,32 @@ export default function OverallPage({data, bookings}) {
         </div>
       </div>
 
+      {/* Bike Section */}
+      <img className="w-full h-auto" id="bike" src={require('../assets/bannerbikever.webp')} alt="Personen beim Fahrradfahren" />
+      <div className="w-full bg-white py-16">
+        <div className="w-10/12 mx-auto max-w-screen-xl">
+          {/* Section Header */}
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <FontAwesomeIcon icon={faBicycle} className="text-4xl text-red-600" />
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">BIKE-RENT</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
+            {bikes.map((item) => (
+              <Article item={item} key={item.id} bookings={bookings} />
+            ))}
+            {bikes.length === 0 && (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                Keine Artikel in dieser Kategorie/Größe verfügbar.
+              </div>
+            )}
+          </div>
+          </div>
+          </div>
+
       {/* Ski Section */}
       <img className="w-full h-auto" id="ski" src={require('../assets/bannskirent.webp')} alt="Personen beim Skifahren" />
       <div className="w-full bg-white py-16">
-        <div className="max-w-screen-2xl mx-auto px-4">
+        <div className="w-10/12 mx-auto max-w-screen-xl">
           {/* Section Header */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <FontAwesomeIcon icon={faSkiing} className="text-4xl text-red-600" />
@@ -151,7 +178,7 @@ export default function OverallPage({data, bookings}) {
                   className="w-full" 
                   value={filter} 
                   onChange={setFilter} 
-                  options={sizeOption}
+                  options={sizeOptions}
                   styles={customSelectStyles}
                   placeholder="Alle Größen anzeigen..."
                   isClearable
@@ -164,52 +191,34 @@ export default function OverallPage({data, bookings}) {
                   Ski-Kategorie
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <button
-                    className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
-                      category === "Racecarver" 
-                        ? "bg-red-600 text-white shadow-lg scale-105" 
-                        : "bg-white text-gray-700 hover:bg-gray-100 shadow"
-                    }`}
-                    onClick={() => setCategory("Racecarver")}
-                  >
-                    Racecarver
-                  </button>
-                  <button
-                    className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
-                      category === "Allroundcarver" 
-                        ? "bg-red-600 text-white shadow-lg scale-105" 
-                        : "bg-white text-gray-700 hover:bg-gray-100 shadow"
-                    }`}
-                    onClick={() => setCategory("Allroundcarver")}
-                  >
-                    Pistenski
-                  </button>
-                  <button
-                    className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
-                      category === "Powder/Allmountain" 
-                        ? "bg-red-600 text-white shadow-lg scale-105" 
-                        : "bg-white text-gray-700 hover:bg-gray-100 shadow"
-                    }`}
-                    onClick={() => setCategory("Powder/Allmountain")}
-                  >
-                    Powder/Allmountain
-                  </button>
+                  {["Racecarver", "Allroundcarver", "Powder/Allmountain"].map((cat) => (
+                    <button
+                      key={cat}
+                      className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 ${
+                        category === cat 
+                          ? "bg-red-600 text-white shadow-lg scale-105" 
+                          : "bg-white text-gray-700 hover:bg-gray-100 shadow"
+                      }`}
+                      onClick={() => setCategory(cat)}
+                    >
+                      {cat === "Allroundcarver" ? "Pistenski" : cat}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Articles Display */}
-          <div className="flex flex-wrap justify-center lg:justify-start gap-6 mb-16">
-            {category === "Racecarver" && racecarver.map((item) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
+            {displayedSki.map((item) => (
               <Article item={item} key={item.id} bookings={bookings} />
             ))}
-            {category === "Allroundcarver" && allround.map((item) => (
-              <Article item={item} key={item.id} bookings={bookings} />
-            ))}
-            {category === "Powder/Allmountain" && powder.map((item) => (
-              <Article item={item} key={item.id} bookings={bookings} />
-            ))}
+            {displayedSki.length === 0 && (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                Keine Artikel in dieser Kategorie/Größe verfügbar.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -217,14 +226,14 @@ export default function OverallPage({data, bookings}) {
       {/* Accessoires Section */}
       <img className="w-full h-auto" id="accessoires" src={require('../assets/bannskirent.webp')} alt="Personen beim Skifahren" />
       <div className="w-full bg-gray-50 py-16">
-        <div className="max-w-screen-2xl mx-auto px-4">
+        <div className="w-10/12 mx-auto max-w-screen-xl">
           
           {/* Skistöcke */}
           <div className="mb-20">
             <div className="flex items-center justify-center gap-4 mb-8">
               <h2 className="text-3xl font-bold text-gray-900">SKISTÖCKE</h2>
             </div>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {sticks.map((item) => (
                 <Article item={item} key={item.id} bookings={bookings} />
               ))}
@@ -237,7 +246,7 @@ export default function OverallPage({data, bookings}) {
               <FontAwesomeIcon icon={faHelmetSafety} className="text-3xl text-red-600" />
               <h2 className="text-3xl font-bold text-gray-900">SKIHELME</h2>
             </div>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {helmets.map((item) => (
                 <Article item={item} key={item.id} bookings={bookings} />
               ))}
@@ -250,7 +259,7 @@ export default function OverallPage({data, bookings}) {
               <FontAwesomeIcon icon={faShoePrints} className="text-3xl text-red-600" />
               <h2 className="text-3xl font-bold text-gray-900">SKISCHUHE</h2>
             </div>
-            <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
               {shoes.map((item) => (
                 <Article item={item} key={item.id} bookings={bookings} />
               ))}
@@ -262,12 +271,12 @@ export default function OverallPage({data, bookings}) {
       {/* Kinder Section */}
       <img className="w-full h-auto" id="kinder" src={require('../assets/bannskirent.webp')} alt="Personen beim Skifahren" />
       <div className="w-full bg-white py-16">
-        <div className="max-w-screen-2xl mx-auto px-4">
+        <div className="w-10/12 mx-auto max-w-screen-xl">
           <div className="flex items-center justify-center gap-4 mb-12">
             <FontAwesomeIcon icon={faChild} className="text-4xl text-red-600" />
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">KINDER</h2>
           </div>
-          <div className="flex flex-wrap justify-center lg:justify-start gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16">
             {kids.map((item) => (
               <Article item={item} key={item.id} bookings={bookings} />
             ))}

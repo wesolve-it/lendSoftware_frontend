@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {ApolloProvider, ApolloClient, createHttpLink, InMemoryCache} from "@apollo/client";
 import { BrowserRouter } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
 
 const httpLink = createHttpLink({
   // uri: 'https://coral-app-2rbal.ondigitalocean.app/graphql/'
@@ -20,9 +21,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <CartProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CartProvider>
     </ApolloProvider>
   </React.StrictMode>
 );

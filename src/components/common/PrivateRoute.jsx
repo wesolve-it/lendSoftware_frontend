@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
+import { AUTH_TOKEN } from '../../constants';
 
-const PrivateRoute = ({ component: Component, ...rest }) => {
-  const auth = true;
+const PrivateRoute = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    let token = localStorage.getItem('auth-token');
+    const token = localStorage.getItem(AUTH_TOKEN);
     if (token) {
-      let tokenExpiration = jwtDecode(token).exp;
-      let dateNow = new Date();
+      const tokenExpiration = jwtDecode(token).exp;
+      const dateNow = new Date();
 
       if (tokenExpiration < dateNow.getTime() / 1000) {
         setIsAuthenticated(false);
@@ -20,14 +20,14 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
     } else {
       setIsAuthenticated(false);
     }
-  }, [auth]
+  }, []
   );
 
   if (isAuthenticated === null) {
     return null;
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate replave to="/" exact />;
+  return isAuthenticated ? <Outlet /> : <Navigate replace to="/login" />;
 };
 
 export default PrivateRoute;

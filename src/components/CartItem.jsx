@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faCalendar, faRuler, faEuroSign } from '@fortawesome/free-solid-svg-icons';
+import { useCart } from '../context/CartContext';
 
-export default function CartItem({item, deleted}) {
+export default function CartItem({item}) {
   const [finalPrice, setFinalPrice] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { removeItem } = useCart();
 
   const diffTime = Math.abs(new Date(item.startDate) - new Date(item.endDate));
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -13,13 +15,13 @@ export default function CartItem({item, deleted}) {
   const endDate = new Date(item.endDate).toLocaleDateString('de-DE');
 
   useEffect(() => {
-    let price = 0;
-    let currentDate = new Date(item.startDate);
-    while (currentDate <= new Date(item.endDate)) {
-      price += parseInt(item.pricePerDay);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    setFinalPrice(price);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const start = new Date(item.startDate);
+    const end = new Date(item.endDate);
+    const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    const dayCount = Math.max(1, Math.floor((endDay - startDay) / msPerDay) + 1);
+    setFinalPrice(parseInt(item.pricePerDay) * dayCount);
   }, [item])
 
   const deleteItem = () => {
@@ -27,12 +29,7 @@ export default function CartItem({item, deleted}) {
     
     // Kleine Verzögerung für die Animation
     setTimeout(() => {
-      let items = JSON.parse(localStorage.getItem('cart'));
-
-      items = items.filter(article => article.id !== item.id);
-      
-      localStorage.setItem('cart', JSON.stringify(items));
-      deleted();
+      removeItem(item.id);
     }, 300);
   }
 

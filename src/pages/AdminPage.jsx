@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Invoice from '../components/Invoice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
@@ -21,7 +21,7 @@ const DELETE_BOOKING = gql`
 
 export default function AdminPage() {
   const [bookings, setBookings] = useState(null);
-  const [sortedBookings, setSortedBookings] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('none');
   const [showInvoice, setShowInvoice] = useState(false);
   const [itemId, setItemId] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -94,12 +94,9 @@ export default function AdminPage() {
           console.error(errors);
         }
         if (data && data.bookings && data.bookings.length !== 0) {
-          const sorted = [...data.bookings].sort((a, b) => b.id - a.id);
           setBookings(data.bookings);
-          setSortedBookings(sorted);
         } else {
           setBookings([]);
-          setSortedBookings([]);
         }
       })
       .catch((error) => {
@@ -118,8 +115,38 @@ export default function AdminPage() {
   const handleSetback = () => {
     setNameSearch('');
     setTime({ endDate: new Date(), startDate: new Date() });
+    setActiveFilter('none');
     fetchBookings();
   }
+
+  const sortedBookings = useMemo(() => {
+    if (!bookings) return [];
+    return [...bookings].sort((a, b) => b.id - a.id);
+  }, [bookings]);
+
+  const filteredBookings = useMemo(() => {
+    if (!sortedBookings.length) return [];
+    if (activeFilter === 'name') {
+      const name = nameSearch.trim().toLowerCase();
+      if (!name) return sortedBookings;
+      return sortedBookings.filter(item => item.lastName.toLowerCase() === name);
+    }
+    if (activeFilter === 'date') {
+      const startDate = new Date(time.startDate);
+      const endDate = new Date(time.endDate);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return sortedBookings;
+      }
+
+      return sortedBookings.filter((item) => {
+        const itemStart = new Date(item.startDate);
+        const itemEnd = new Date(item.endDate);
+        return (itemStart <= endDate && itemEnd >= startDate);
+      });
+    }
+    return sortedBookings;
+  }, [sortedBookings, activeFilter, nameSearch, time]);
 
   const getVisiblePages = (currentPage, totalPages, maxVisible = 3) => {
     const pages = [];
@@ -153,11 +180,15 @@ export default function AdminPage() {
   }
 
   const searchForName = () => {
-    var newArray = sortedBookings.filter(item => item.lastName.toLowerCase() === nameSearch.toLowerCase());
-    if (nameSearch === null || nameSearch === '') {
-      fetchBookings();
-    } else if (newArray.length > 0) {
-      setSortedBookings(newArray);
+    const name = nameSearch.trim().toLowerCase();
+    if (!name) {
+      setActiveFilter('none');
+      return;
+    }
+
+    const newArray = sortedBookings.filter(item => item.lastName.toLowerCase() === name);
+    if (newArray.length > 0) {
+      setActiveFilter('name');
     } else {
       alert('Dieser Name ist nicht vorhanden!')
     }
@@ -179,7 +210,7 @@ export default function AdminPage() {
     });
 
     if (newArray.length > 0) {
-      setSortedBookings(newArray);
+      setActiveFilter('date');
     } else {
       alert('Für den Zeitraum sind keine Daten vorhanden!');
     } 
@@ -239,6 +270,23 @@ export default function AdminPage() {
     );
   };
 
+  const groupedItems = useMemo(() => {
+    const groupedBookings = filteredBookings.reduce((acc, booking) => {
+      const key = `${booking.firstName}-${booking.lastName}-${booking.bookingDate}-${booking.startDate}-${booking.endDate}`;
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(booking);
+      return acc;
+    }, {});
+
+    return Object.values(groupedBookings);
+  }, [filteredBookings]);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = groupedItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(groupedItems.length / itemsPerPage);
+
   if (!bookings) return (
     <div className="flex justify-center items-center h-screen bg-gray-50">
       <div className="text-center">
@@ -247,21 +295,6 @@ export default function AdminPage() {
       </div>
     </div>
   );
-
-  const groupedBookings = sortedBookings.reduce((acc, booking) => {
-    const key = `${booking.firstName}-${booking.lastName}-${booking.bookingDate}-${booking.startDate}-${booking.endDate}`;
-    if (!acc[key]) {
-      acc[key] = [];
-    }
-    acc[key].push(booking);
-    return acc;
-  }, {});
-
-  const groupedItems = Object.values(groupedBookings);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = groupedItems.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(groupedItems.length / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-gray-50">
