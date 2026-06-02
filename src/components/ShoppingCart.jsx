@@ -28,6 +28,7 @@ const BOOK_CART = gql`
 
 export default function ShoppingCart() {
   const [finalPrice, setFinalPrice] = useState(0)
+  const [singleDaySurcharge, setSingleDaySurcharge] = useState(0)
   const [formData, setFormData] = useState({
     email: '',
     firstName: '',
@@ -45,6 +46,7 @@ export default function ShoppingCart() {
 
   useEffect(() => {
     let price = 0;
+    const singleDayPeriods = new Set();
     const msPerDay = 24 * 60 * 60 * 1000;
     if (cart) {
       cart.forEach((item) => {
@@ -54,8 +56,11 @@ export default function ShoppingCart() {
         const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
         const dayCount = Math.max(1, Math.floor((endDay - startDay) / msPerDay) + 1);
         price += parseInt(item.pricePerDay) * dayCount;
-      })
-      setFinalPrice(price);
+        if (item.startDate === item.endDate) singleDayPeriods.add(item.startDate);
+      });
+      const surcharge = singleDayPeriods.size * 10;
+      setSingleDaySurcharge(surcharge);
+      setFinalPrice(price + surcharge);
     }
   }, [cart]);
 
@@ -132,11 +137,12 @@ export default function ShoppingCart() {
                 </div>
 
                 {/* Zusammenfassung - 1/3 width - Sticky */}
-                <CartSummary 
-                  cartCount={cart.length} 
-                  finalPrice={finalPrice} 
-                  onBooking={handleBooking} 
-                  loading={loading} 
+                <CartSummary
+                  cartCount={cart.length}
+                  finalPrice={finalPrice}
+                  surcharge={singleDaySurcharge}
+                  onBooking={handleBooking}
+                  loading={loading}
                 />
               </div>
           ) : (

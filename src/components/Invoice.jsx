@@ -28,24 +28,27 @@ export default function Invoice({itemId, bookings, articles, onClose}) {
   }, [bookings, itemId]);
 
   const calculatePrice = (art) => {
+    if (art.startDate === art.endDate) {
+      return parseInt(art.size.pricePerDay);
+    }
+
     let actualPrice = 0;
     let currentDate = new Date(art.startDate);
     while (currentDate <= new Date(art.endDate)) {
       if (currentDate.getDay() > 2 || currentDate.getDay() < 1) {
         actualPrice += parseInt(art.size.pricePerDay);
-      } else {
-        actualPrice += 0;
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return actualPrice;
   };
 
-  const calculateGroupPrice = (items) => {
+  const calculateGroupPrice = (group) => {
     let price = 0;
-    items.forEach((item) => {
+    group.items.forEach((item) => {
       price += calculatePrice(item);
     });
+    if (group.startDate === group.endDate) price += 10;
     return price;
   };
 
@@ -184,7 +187,7 @@ export default function Invoice({itemId, bookings, articles, onClose}) {
         {/* Invoice Content */}
         <div className="wrapper font-sans p-4">
           {groupedBookings.map((group, groupIndex) => {
-            const groupPrice = calculateGroupPrice(group.items);
+            const groupPrice = calculateGroupPrice(group);
             
             return (
               <div key={groupIndex} style={{width: 650, borderWidth: 1, marginLeft: 'auto', marginRight: 'auto', marginBottom: 40}}>
@@ -225,7 +228,6 @@ export default function Invoice({itemId, bookings, articles, onClose}) {
                   </div>
 
                   {group.items.map((item, index) => {
-                    console.log(item);
                     return (
                       <div key={index} className="flex flex-row mt-10 text-xs">
                         {index === 3 ? <section className='h-52' /> : index === 9 ? <section className='h-60' /> : null}
@@ -264,6 +266,41 @@ export default function Invoice({itemId, bookings, articles, onClose}) {
                       </div>
                     )
                   })}
+
+                  {group.startDate === group.endDate && (
+                    <div className="flex flex-row mt-10 text-xs">
+                      <section className="basis-1/12 text-left">
+                        <p>Pos.</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p>{group.items.length + 1}</p>
+                      </section>
+                      <section className="basis-6/12 text-left">
+                        <p>Beschreibung</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p>Einzel-Tag-Pauschale</p>
+                      </section>
+                      <section className="basis-1/12">
+                        <p>Anzahl</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p className="ml-12">1</p>
+                      </section>
+                      <section className="basis-1/12">
+                        <p>Einzelpreis</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p className="ml-4">10,00 €</p>
+                      </section>
+                      <section className="basis-2/12">
+                        <p>USt.-Satz</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p>19,00%</p>
+                      </section>
+                      <section className="basis-1/12 text-right">
+                        <p>Gesamtpreis</p>
+                        <section className="h-[0.5px] bg-black mt-2 mb-2" />
+                        <p>10,00 €</p>
+                      </section>
+                    </div>
+                  )}
 
                   <section className='flex-1 text-xs mt-10 text-left'>
                     <p>Notiz:</p>

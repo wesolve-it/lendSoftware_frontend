@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CartSummary = ({ cartCount, finalPrice, onBooking, loading }) => {
+const CartSummary = ({ cartCount, finalPrice, surcharge, onBooking, loading }) => {
   return (
     <div className="lg:col-span-1">
       <div className="bg-white rounded-2xl shadow-md p-6 sticky top-24">
@@ -11,6 +11,13 @@ const CartSummary = ({ cartCount, finalPrice, onBooking, loading }) => {
             <span>Artikel im Warenkorb:</span>
             <span className="font-semibold">{cartCount}</span>
           </div>
+
+          {surcharge > 0 && (
+            <div className="flex justify-between text-gray-600">
+              <span>Einzel-Tag-Pauschale:</span>
+              <span className="font-semibold">{surcharge}€</span>
+            </div>
+          )}
 
           <div className="border-t-2 border-gray-100 pt-4">
             <div className="flex justify-between items-center">
