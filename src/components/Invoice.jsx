@@ -4,8 +4,16 @@ import jsPDF from "jspdf";
 import { ensurePdfWorker } from '../utils/pdfjs';
 
 
-export default function Invoice({itemId, bookings, onClose}) {
+export default function Invoice({itemId, bookings, articles, onClose}) {
   const [article] = useState(itemId);
+
+  const getArticleName = (sizeId) => {
+    if (articles?.length && sizeId != null) {
+      const found = articles.find(a => a.sizes?.some(s => String(s.id) === String(sizeId)));
+      if (found) return found.name;
+    }
+    return null;
+  };
   const [groupedBookings, setGroupedBookings] = useState([]);
 
   var str = "" + article.id;
@@ -229,8 +237,8 @@ export default function Invoice({itemId, bookings, onClose}) {
                         <section className="basis-6/12 text-left">
                           <p>Beschreibung</p>
                           <section className="h-[0.5px] bg-black mt-2 mb-2" />
-                          <p>{item.size.articleSet[0].name ? item.size.articleSet[0].name : null}, Größe: {item.size ? item.size.label : null}</p>
-                          <p className="font-light text-[10px]">{item.size.articleSet[0].name ? item.size.articleSet[0].name : null}</p>
+                          <p>{getArticleName(item.size?.id) ?? item.size?.articleSet?.[0]?.name}, Größe: {item.size ? item.size.label : null}</p>
+                          <p className="font-light text-[10px]">{getArticleName(item.size?.id) ?? item.size?.articleSet?.[0]?.name}</p>
                           <p className="font-light text-[10px]">ID: {item.size.serialNumber ? item.size.serialNumber : null} Bezeichnung: {item.size ? item.size.label : null}cm</p>
                         </section>
                         <section className="basis-1/12">

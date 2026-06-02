@@ -5,9 +5,21 @@ import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table';
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation, useQuery, gql } from '@apollo/client';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faCalendar, faUndo, faFileInvoice, faTrash, faFilter, faChartLine } from '@fortawesome/free-solid-svg-icons';
+
+const GET_ARTICLES = gql`
+  query {
+    articles {
+      id
+      name
+      sizes {
+        id
+      }
+    }
+  }
+`;
 
 // GraphQL Mutation definieren
 const DELETE_BOOKING = gql`
@@ -20,6 +32,7 @@ const DELETE_BOOKING = gql`
 `;
 
 export default function AdminPage() {
+  const { data: articlesData } = useQuery(GET_ARTICLES);
   const [bookings, setBookings] = useState(null);
   const [activeFilter, setActiveFilter] = useState('none');
   const [showInvoice, setShowInvoice] = useState(false);
@@ -60,6 +73,7 @@ export default function AdminPage() {
         email
         phoneNumber
         size {
+          id
           label
           articleSet {
             name
@@ -485,7 +499,7 @@ export default function AdminPage() {
 
       {/* Invoice Modal */}
       {showInvoice && selectedGroup && (
-        <Invoice itemId={itemId} bookings={selectedGroup} onClose={closeInvoice} />
+        <Invoice itemId={itemId} bookings={selectedGroup} articles={articlesData?.articles} onClose={closeInvoice} />
       )}
     </div>
   )

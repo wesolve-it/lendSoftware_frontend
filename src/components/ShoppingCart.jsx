@@ -97,7 +97,7 @@ export default function ShoppingCart() {
           startDate: item.startDate,
           endDate: item.endDate,
           bookingDate: new Date().toISOString().slice(0, 10),
-          size: item.id,
+          size: item.size.id,
         },
       });
     }));
