@@ -136,11 +136,11 @@ export default function OverallPage({data, bookings}) {
       </div>
 
       {/* Bike Section */}
-      <img className="w-full h-auto" id="bike" src={require('../assets/bannerbikever.webp')} alt="Personen beim Fahrradfahren" />
-      <div className="w-full bg-white py-16">
-        <div className="w-10/12 mx-auto max-w-screen-xl">
+      {/* <img className="w-full h-auto" id="bike" src={require('../assets/bannerbikever.webp')} alt="Personen beim Fahrradfahren" /> */}
+      {/* <div className="w-full bg-white py-16">
+        <div className="w-10/12 mx-auto max-w-screen-xl"> */}
           {/* Section Header */}
-          <div className="flex items-center justify-center gap-4 mb-12">
+          {/* <div className="flex items-center justify-center gap-4 mb-12">
             <FontAwesomeIcon icon={faBicycle} className="text-4xl text-red-600" />
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">BIKE-RENT</h2>
           </div>
@@ -155,7 +155,7 @@ export default function OverallPage({data, bookings}) {
             )}
           </div>
           </div>
-          </div>
+          </div> */}
 
       {/* Ski Section */}
       <img className="w-full h-auto" id="ski" src={require('../assets/bannskirent.webp')} alt="Personen beim Skifahren" />
