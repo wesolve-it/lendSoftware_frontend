@@ -4,7 +4,7 @@ import Article from '../components/Article'
 import Select from "react-select";
 import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSkiing, faHelmetSafety, faShoePrints, faChild, faBicycle } from '@fortawesome/free-solid-svg-icons';
+import { faSkiing, faHelmetSafety, faShoePrints, faChild } from '@fortawesome/free-solid-svg-icons';
 
 export default function OverallPage({data, bookings}) {
   const [filter, setFilter] = useState(null);
@@ -22,7 +22,7 @@ export default function OverallPage({data, bookings}) {
   }, [location]);
 
   // Derived state using useMemo to avoid re-calculating on every render
-  const { helmets, sticks, shoes, kids, skiItems, bikes } = useMemo(() => {
+  const { helmets, sticks, shoes, kids, skiItems } = useMemo(() => {
     if (!data) return { helmets: [], sticks: [], shoes: [], kids: [], skiItems: [], bikes: [] };
     
     return {
